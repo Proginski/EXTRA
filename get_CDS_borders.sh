@@ -36,11 +36,6 @@ name=$(basename $gfasta .fna)
 pref_suf="${name}_prefix_n_suffix"
 
 
-# Remove the final file if it already exists
-rm -f ${outdir}/${name}_TRG_multielongated.faa
-rm -f ${outdir}/${name}_CDS_elongated.faa
-
-
 # Need to know the length of the sequence (chr) in order not to exeed its bounds
 if [ ! -s $genome ]; then faSize $gfasta -detailed -tab > $genome ; fi
 
@@ -156,27 +151,6 @@ else
 fi
 
 
-# If the CDS FASTA "${name}_CDS.faa" does not exists generate it :
-if [ ! -s ${outdir}/${name}_CDS.faa ]; then
-
-	# Extract the genomic CDS.
-	# -V discard any mRNAs with CDS having in-frame stop codons
-	# -x : write a fasta file with spliced CDS for each GFF transcript
-	gffread -V -g $gfasta -x ${name}_CDS.fna.tmp $gff
-
-	#linearize the fna
-	awk '/^>/ {printf("%s%s\n",(N>0?"\n":""),$0);N++;next;} {printf("%s",$0);} END {printf("\n");}' ${name}_CDS.fna.tmp > ${outdir}/${name}_CDS.fna
-	rm ${name}_CDS.fna.tmp
-
-	# Get translated CDS FASTA.
-	faTrans ${outdir}/${name}_CDS.fna ${name}_CDS.faa.tmp
-	# Turn "Z" into "*" and linearize the FASTA
-	sed "s/Z/*/g" ${name}_CDS.faa.tmp | \
-	awk '/^>/ {printf("%s%s\n",(N>0?"\n":""),$0);N++;next;} {printf("%s",$0);} END {printf("\n");}' > ${outdir}/${name}_CDS.faa
-	rm ${name}_CDS.faa.tmp
-
-fi
-
 
 # Then according the the "--multiframe" option, build an elongated translated CDS FASTA.
 echo "multiframe $multiframe"
@@ -222,8 +196,7 @@ if [ $multiframe == "True" ]; then
 		}
 	}
 	}
-	' ${pref_suf}.faa ${outdir}/${name}_TRG.faa >> ${proc_dir}/${name}_TRG_multielongated.faa.tmp
-	mv ${proc_dir}/${name}_TRG_multielongated.faa.tmp ${proc_dir}/${name}_TRG_multielongated.faa
+	' ${pref_suf}.faa ${outdir}/${name}_TRG.faa >> ${proc_dir}/${name}_TRG_multielongated.faa
 else
 	awk '
 	BEGIN{FS=OFS="\t"}
@@ -259,8 +232,7 @@ else
 		}
 	}
 	}
-	' ${pref_suf}.faa ${outdir}/${name}_CDS.faa >> ${proc_dir}/${name}_CDS_elongated.faa.tmp
-	mv ${proc_dir}/${name}_CDS_elongated.faa.tmp ${proc_dir}/${name}_CDS_elongated.faa
+	' ${pref_suf}.faa ${outdir}/${name}_CDS.faa >> ${name}_CDS_elongated.faa
 fi
 
 
@@ -303,6 +275,5 @@ then
 		}
 	}
 	}
-	' ${pref_suf}.fna ${outdir}/${name}_CDS.fna >> ${outdir}/${name}_CDS_elongated.fna.tmp
-	mv ${outdir}/${name}_CDS_elongated.fna.tmp ${outdir}/${name}_CDS_elongated.fna
+	' ${pref_suf}.fna ${outdir}/${name}_CDS.fna >> ${outdir}/${name}_CDS_elongated.fna
 fi
