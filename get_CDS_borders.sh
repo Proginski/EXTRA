@@ -239,7 +239,7 @@ fi
 
 # Finally, also build an elongated CDS FASTA.
 # It will be further used to make nucleotide aligments.
-if [ $multiframe == "True" ]
+if [ $multiframe != "True" ]
 then
 	awk '
 	BEGIN{FS=OFS="\t"}
