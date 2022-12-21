@@ -275,5 +275,5 @@ then
 		}
 	}
 	}
-	' ${pref_suf}.fna ${outdir}/${name}_CDS.fna >> ${outdir}/${name}_CDS_elongated.fna
+	' ${pref_suf}.fna ${outdir}/${name}_CDS.fna >> ${name}_CDS_elongated.fna
 fi
