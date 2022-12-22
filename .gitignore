@@ -3,3 +3,5 @@ OLD/
 *.nf
 __pycache__/
 get_CDS_borders.sh.save
+get_CDS_parent.sh
+orfget_TRG_to_gffread_TRG.sh

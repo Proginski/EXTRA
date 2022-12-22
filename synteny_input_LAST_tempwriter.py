@@ -21,6 +21,7 @@ import multiprocessing
 import argparse
 import time
 import operator
+from os import stat 
 from os import makedirs
 from os.path import exists
 from random import sample
@@ -233,6 +234,11 @@ parser.add_argument("-O","--out", help="output_file")
 
 args = parser.parse_args()
 
+# Check that input files are not empty
+for file in [ args.gffA, args.gffB, args.ortho, args.list ] :
+    if stat(file).st_size == 0 : 
+        print("{} is empty !".format(file))
+        sys.exit()
 
 # Set the number of CDS to retrieve on each side of genome A or B
 flankA = args.flankA
@@ -295,6 +301,9 @@ def get_attr(gff, test_list, title, verbose = False, ) :
     # gff_read = BedTool(gff)
     gff_read = gff
     
+#    print("gff : {}".format(gff))
+#    print("test_list : {}".format(test_list))
+    
     # Test on a sample of 10 sequences of "ortho_df"
     testers_ind = sample(range(0,len(test_list)),min(10,len(test_list)))    
     testers = [ test_list[ind] for ind in testers_ind ] 
@@ -315,6 +324,9 @@ def get_attr(gff, test_list, title, verbose = False, ) :
     
     match_attrs_list = [ find_attr(tester) for tester in testers ]
     
+#    print("testers : {}".format(testers))
+#    print("match_attrs_list : {}".format(match_attrs_list))
+    
     try : 
         attr_to_use = list(set.intersection(*map(set,match_attrs_list)))[0]
         # print("Using '{}' as attribute for '{}' based on the following names : {}".format(attr_to_use, gff,testers))
@@ -329,6 +341,7 @@ def get_attr(gff, test_list, title, verbose = False, ) :
 
     return(attr_to_use)
 
+#print("ortho_df : {}".format(ortho_df))
 ortho_attrA = get_attr(filtered_gffA, title ="flanking sequences for genome A", test_list=ortho_df['A'])
 ortho_attrB = get_attr(filtered_gffB, title ="flanking sequences for genome B", test_list=ortho_df['B'])
 print("--- %s seconds to get ortho attributes---" % (time.time() - start_time))

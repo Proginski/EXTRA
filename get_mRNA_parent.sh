@@ -21,7 +21,6 @@ for (mRNA in mRNAs){
 	else { print mRNA, mRNA }
 
 }
-
 }' $1 $2
 
 
